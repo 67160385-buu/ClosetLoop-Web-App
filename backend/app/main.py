@@ -13,17 +13,26 @@ app = FastAPI(
     description="REST API for ClosetLoop: Virtual Closet, AI Outfit Matching and Marketplace"
 )
 
+import os
+
 # 2. กำหนด รายชื่อ Origins ของ Frontend ที่อนุญาตให้เข้าถึง
+cors_env = os.getenv("CORS_ORIGINS", "")
 origins = [
     "http://localhost:5173",     # Port หลักของ Vite / React
     "http://127.0.0.1:5173",     # IP แบบ Local
     "http://localhost:3000",     # เผื่อกรณีใช้ Create React App
 ]
+if cors_env:
+    for o in cors_env.split(","):
+        cleaned = o.strip()
+        if cleaned and cleaned not in origins:
+            origins.append(cleaned)
 
 # 3. ตั้งค่า CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,       # <-- แก้เป็นระบุรายชื่อ origins แทน ["*"]
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.onrender\.com",  # อนุญาต Frontend ทุกโดเมนบน Render
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
