@@ -6,14 +6,21 @@ from ..models import ClosetItem, User
 from ..schemas import ClosetItemCreate, ClosetItemOut
 from ..security import get_current_user
 
-router = APIRouter(prefix="/closet", tags=["My Closet"])
+router = APIRouter(tags=["My Closet"])
 
-@router.get("", response_model=List[ClosetItemOut])
+@router.get("/closet", response_model=List[ClosetItemOut])
+@router.get("/api/closet", response_model=List[ClosetItemOut])
 def get_closet(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # ดึงเสื้อผ้าเฉพาะของคนที่ล็อกอินอยู่
-    return db.query(ClosetItem).filter(ClosetItem.user_id == current_user.id).all()
+    # ดึงเสื้อผ้าเฉพาะในตู้ดิจิทัลของตนเอง
+    return (
+        db.query(ClosetItem)
+        .filter(ClosetItem.user_id == current_user.id)
+        .order_by(ClosetItem.created_at.desc())
+        .all()
+    )
 
-@router.post("", response_model=ClosetItemOut)
+@router.post("/closet", response_model=ClosetItemOut)
+@router.post("/api/closet", response_model=ClosetItemOut)
 def add_piece(data: ClosetItemCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     item = ClosetItem(**data.model_dump(), user_id=current_user.id)
     db.add(item)
@@ -21,7 +28,8 @@ def add_piece(data: ClosetItemCreate, current_user: User = Depends(get_current_u
     db.refresh(item)
     return item
 
-@router.delete("/{item_id}")
+@router.delete("/closet/{item_id}")
+@router.delete("/api/closet/{item_id}")
 def delete_piece(item_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     item = db.query(ClosetItem).filter(ClosetItem.id == item_id, ClosetItem.user_id == current_user.id).first()
     if not item:
