@@ -29,7 +29,7 @@ services:
       - key: CORS_ORIGINS
         value: http://localhost:5173
 
-  # 2. React Vite Frontend Static Site (ห้ามใส่ region)
+  # 2. React Vite Frontend Static Site
   - type: web
     name: closetloop-frontend
     runtime: static
@@ -46,4 +46,4 @@ services:
         fromService:
           type: web
           name: closetloop-backend
-          property: url
+          property: host
