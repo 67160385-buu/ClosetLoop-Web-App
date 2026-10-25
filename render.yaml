@@ -29,12 +29,12 @@ services:
       - key: CORS_ORIGINS
         value: http://localhost:5173
 
-  # 2. React Vite Frontend Static Site
+  # 2. React Vite Frontend Static Site (ห้ามใส่ region)
   - type: web
     name: closetloop-frontend
     runtime: static
     rootDir: frontend
-    region: singapore
+    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
@@ -46,4 +46,4 @@ services:
         fromService:
           type: web
           name: closetloop-backend
-          property: host
+          property: url
